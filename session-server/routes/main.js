@@ -1,4 +1,5 @@
 const express = require("express");
+const cron = require("node-cron");
 const nodemailer = require("nodemailer");
 const router = express.Router();
 const stripe = require("stripe")(
@@ -28,16 +29,26 @@ const userDetailsRouter = require("../routes/userdetails.route");
 const sequenceRouter = require("../routes/sequence.route");
 const productRouter = require("../routes/product.route");
 const tagRouter = require("../routes/tags.route");
+const loginRoute = require("../routes/login.route");
+const registerRouter = require('../routes/register.route');
 
-router.use("/", contactRoute);
-router.use("/", companyRoute);
-router.use("/", taskRoute);
-router.use("/", templateRoute);
-router.use("/", snippetRoute);
-router.use("/", userDetailsRouter);
-router.use("/", sequenceRouter);
-router.use("/", productRouter);
-router.use("/", tagRouter);
+//Middlewares
+const authMiddleware = require('../auth/authMiddleware');
+
+//LOGIN AND REGISTRATION
+router.use("/", loginRoute);
+router.use("/", registerRouter);
+
+// Protected Routes
+router.use("/", authMiddleware, contactRoute);
+router.use("/", authMiddleware, companyRoute);
+router.use("/", authMiddleware, taskRoute);
+router.use("/", authMiddleware, templateRoute);
+router.use("/", authMiddleware, snippetRoute);
+router.use("/", authMiddleware, userDetailsRouter);
+router.use("/", authMiddleware, sequenceRouter);
+router.use("/", authMiddleware, productRouter);
+router.use("/", authMiddleware, tagRouter);
 
 //Test Route
 router.get("/test", (req, res) => {
@@ -45,8 +56,8 @@ router.get("/test", (req, res) => {
 });
 
 //UTILS import
-const getdet = require('../utils/getDetUtil');
-const isNumeric = require('../utils/isNumeric');
+const getdet = require("../utils/getDetUtil");
+const isNumeric = require("../utils/isNumeric");
 
 getdet();
 
